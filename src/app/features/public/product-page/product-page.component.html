@@ -1,0 +1,60 @@
+<section class="hero-grid">
+  <div>
+    <span class="badge">Limited Release</span>
+    <h1 class="page-title">
+      <ng-container *ngIf="!loading(); else titleSkeleton">
+        {{ product()?.name }}
+      </ng-container>
+    </h1>
+    <ng-template #titleSkeleton>
+      <app-skeleton height="36px" width="80%" />
+    </ng-template>
+
+    <p class="page-subtitle" *ngIf="!loading(); else subtitleSkeleton">
+      {{ product()?.description }}
+    </p>
+    <ng-template #subtitleSkeleton>
+      <app-skeleton height="18px" width="90%" />
+    </ng-template>
+
+    <div class="price-row" *ngIf="!loading(); else priceSkeleton">
+      <div class="price">
+        {{ product()?.price | currency: currency() }}
+      </div>
+      <span>Secure one-time payment</span>
+    </div>
+    <ng-template #priceSkeleton>
+      <app-skeleton height="28px" width="140px" />
+    </ng-template>
+
+    <div class="actions">
+      <a class="btn btn-primary" routerLink="/checkout">Buy Now</a>
+      <button type="button" class="btn btn-ghost">View Specs</button>
+    </div>
+
+    <div class="pill-group" *ngIf="!loading(); else featureSkeleton">
+      <span class="pill" *ngFor="let feature of product()?.features">{{ feature }}</span>
+    </div>
+    <ng-template #featureSkeleton>
+      <div class="pill-group">
+        <app-skeleton height="36px" width="140px" />
+        <app-skeleton height="36px" width="180px" />
+        <app-skeleton height="36px" width="160px" />
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="card product-card">
+    <img [src]="imageUrl()" alt="Product preview" />
+    <div class="product-meta">
+      <div>
+        <strong>Premium delivery</strong>
+        <p>Ships within 24 hours worldwide.</p>
+      </div>
+      <div>
+        <strong>Support</strong>
+        <p>24/7 concierge setup guidance.</p>
+      </div>
+    </div>
+  </div>
+</section>

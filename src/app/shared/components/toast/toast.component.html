@@ -1,0 +1,9 @@
+<div class="toast-stack">
+  <div class="toast" *ngFor="let toast of toasts()" [ngClass]="toast.type">
+    <div>
+      <strong>{{ toast.title }}</strong>
+      <p>{{ toast.message }}</p>
+    </div>
+    <button class="toast-close" type="button" (click)="dismiss(toast.id)">x</button>
+  </div>
+</div>

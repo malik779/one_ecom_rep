@@ -1,0 +1,24 @@
+.filters {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.order-row {
+  cursor: pointer;
+}
+
+.order-row:hover {
+  background: rgba(91, 124, 250, 0.05);
+}
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.order-detail-grid ul {
+  padding-left: 18px;
+}

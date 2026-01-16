@@ -1,0 +1,19 @@
+.success-card {
+  display: grid;
+  gap: 16px;
+  text-align: left;
+}
+
+.summary {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(91, 124, 250, 0.08);
+}
+
+.summary span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}

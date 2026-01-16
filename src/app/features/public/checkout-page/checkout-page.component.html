@@ -1,0 +1,97 @@
+<div class="checkout-grid">
+  <div class="card">
+    <div class="page-header">
+      <h2 class="page-title">Secure Checkout</h2>
+      <p class="page-subtitle">
+        Complete your purchase with an encrypted, PCI-compliant payment flow.
+      </p>
+    </div>
+
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid two">
+        <div class="form-field">
+          <label>Full Name</label>
+          <input class="input" type="text" formControlName="fullName" placeholder="Jane Doe" />
+          <span class="form-error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+            Please enter your full name.
+          </span>
+        </div>
+        <div class="form-field">
+          <label>Email Address</label>
+          <input class="input" type="email" formControlName="email" placeholder="jane@example.com" />
+          <span class="form-error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+            Enter a valid email address.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-grid two">
+        <div class="form-field">
+          <label>Phone Number</label>
+          <input class="input" type="tel" formControlName="phone" placeholder="+1 555 0100" />
+          <span class="form-error" *ngIf="form.get('phone')?.touched && form.get('phone')?.invalid">
+            Enter a valid phone number.
+          </span>
+        </div>
+        <div class="form-field">
+          <label>Country</label>
+          <select class="select" formControlName="country">
+            <option value="">Select country</option>
+            <option *ngFor="let country of countries" [value]="country">
+              {{ country }}
+            </option>
+          </select>
+          <span class="form-error" *ngIf="form.get('country')?.touched && form.get('country')?.invalid">
+            Select your country.
+          </span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Billing Address</label>
+        <textarea
+          class="textarea"
+          formControlName="billingAddress"
+          placeholder="Street, city, state, postal code"
+        ></textarea>
+        <span
+          class="form-error"
+          *ngIf="form.get('billingAddress')?.touched && form.get('billingAddress')?.invalid"
+        >
+          Enter a valid billing address.
+        </span>
+      </div>
+
+      <label class="terms">
+        <input type="checkbox" formControlName="terms" />
+        I agree to the Terms & Conditions
+      </label>
+      <span class="form-error" *ngIf="form.get('terms')?.touched && form.get('terms')?.invalid">
+        You must accept the terms before continuing.
+      </span>
+
+      <button class="btn btn-primary" type="submit" [disabled]="processing()">
+        {{ processing() ? 'Redirecting...' : 'Pay securely' }}
+      </button>
+      <a routerLink="/" class="btn btn-outline">Back to product</a>
+    </form>
+  </div>
+
+  <div class="card card-muted order-summary">
+    <h3>Order Summary</h3>
+    <ng-container *ngIf="!loading(); else summaryLoading">
+      <div class="summary-item">
+        <span>{{ product()?.name }}</span>
+        <strong>{{ product()?.price | currency: currency() }}</strong>
+      </div>
+      <div class="summary-meta">
+        <p>Includes shipping, setup, and onboarding.</p>
+        <p>Secure payment powered by your configured gateway.</p>
+      </div>
+    </ng-container>
+    <ng-template #summaryLoading>
+      <app-skeleton height="18px" width="70%" />
+      <app-skeleton height="18px" width="40%" />
+    </ng-template>
+  </div>
+</div>
