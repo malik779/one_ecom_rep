@@ -1,0 +1,94 @@
+<div class="page-header">
+  <h2 class="page-title">Orders</h2>
+  <p class="page-subtitle">Track purchases, payment status, and customer details.</p>
+</div>
+
+<form class="card filters" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+  <div class="form-grid two">
+    <div class="form-field">
+      <label>Status</label>
+      <select class="select" formControlName="status">
+        <option value="">All statuses</option>
+        <option *ngFor="let status of statusOptions" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input class="input" type="text" formControlName="email" placeholder="Search by email" />
+    </div>
+  </div>
+  <div class="form-grid two">
+    <div class="form-field">
+      <label>Start date</label>
+      <input class="input" type="date" formControlName="startDate" />
+    </div>
+    <div class="form-field">
+      <label>End date</label>
+      <input class="input" type="date" formControlName="endDate" />
+    </div>
+  </div>
+  <button class="btn btn-primary" type="submit">Apply filters</button>
+</form>
+
+<div class="card">
+  <ng-container *ngIf="!loading(); else loadingState">
+    <p class="form-error" *ngIf="error()">{{ error() }}</p>
+    <p *ngIf="orders().length === 0">No orders found.</p>
+    <table class="table" *ngIf="orders().length > 0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Transaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders()" (click)="selectOrder(order)" class="order-row">
+          <td>{{ order.created_at | date: 'mediumDate' }}</td>
+          <td>{{ order.full_name }}</td>
+          <td>{{ order.email }}</td>
+          <td><span class="status" [ngClass]="order.status">{{ order.status }}</span></td>
+          <td>{{ order.total_amount | currency: order.currency }}</td>
+          <td>{{ order.transaction_id || 'Pending' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+  <ng-template #loadingState>
+    <app-skeleton height="20px" width="100%" />
+    <app-skeleton height="20px" width="90%" />
+    <app-skeleton height="20px" width="95%" />
+  </ng-template>
+</div>
+
+<div class="card" *ngIf="selectedOrder() as order">
+  <h3>Order details</h3>
+  <div class="order-detail-grid">
+    <div>
+      <strong>Customer</strong>
+      <p>{{ order.full_name }}</p>
+    </div>
+    <div>
+      <strong>Contact</strong>
+      <p>{{ order.email }} · {{ order.phone }}</p>
+    </div>
+    <div>
+      <strong>Address</strong>
+      <p>{{ order.billing_address }}</p>
+    </div>
+    <div>
+      <strong>Items</strong>
+      <ul>
+        <li *ngFor="let item of order.items">
+          {{ item.product_name }} · {{ item.quantity }} ×
+          {{ item.unit_price | currency: order.currency }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

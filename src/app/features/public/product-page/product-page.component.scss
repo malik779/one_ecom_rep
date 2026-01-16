@@ -1,0 +1,32 @@
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 24px 0;
+  color: var(--text-secondary);
+}
+
+.price {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+
+.product-card {
+  display: grid;
+  gap: 20px;
+}
+
+.product-meta {
+  display: grid;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

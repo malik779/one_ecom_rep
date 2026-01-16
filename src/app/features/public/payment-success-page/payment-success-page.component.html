@@ -1,0 +1,38 @@
+<div class="card success-card">
+  <ng-container *ngIf="!loading(); else loadingState">
+    <div *ngIf="confirmation(); else errorState">
+      <h2>Congratulations! Your order is confirmed.</h2>
+      <p>We have sent a receipt to {{ confirmation()?.customerEmail }}.</p>
+      <div class="summary">
+        <div>
+          <span>Order ID</span>
+          <strong>{{ confirmation()?.orderId }}</strong>
+        </div>
+        <div>
+          <span>Amount</span>
+          <strong>{{ confirmation()?.amount }} {{ confirmation()?.currency }}</strong>
+        </div>
+        <div>
+          <span>Transaction</span>
+          <strong>{{ confirmation()?.transactionId || 'Pending' }}</strong>
+        </div>
+        <div>
+          <span>Status</span>
+          <strong>{{ confirmation()?.status }}</strong>
+        </div>
+      </div>
+      <a class="btn btn-primary" routerLink="/">Return to product page</a>
+    </div>
+  </ng-container>
+
+  <ng-template #errorState>
+    <h2>We are verifying your payment.</h2>
+    <p>{{ error() }}</p>
+    <a class="btn btn-outline" routerLink="/checkout">Back to checkout</a>
+  </ng-template>
+
+  <ng-template #loadingState>
+    <app-skeleton height="24px" width="70%" />
+    <app-skeleton height="16px" width="50%" />
+  </ng-template>
+</div>

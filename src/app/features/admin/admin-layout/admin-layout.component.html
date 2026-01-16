@@ -1,0 +1,14 @@
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="brand">Admin Console</div>
+    <nav>
+      <a routerLink="/admin/orders" routerLinkActive="active">Orders</a>
+      <a routerLink="/admin/settings" routerLinkActive="active">Settings</a>
+    </nav>
+    <button class="btn btn-outline" type="button" (click)="signOut()">Sign out</button>
+  </aside>
+
+  <section class="admin-content">
+    <router-outlet />
+  </section>
+</div>

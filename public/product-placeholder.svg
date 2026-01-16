@@ -1,0 +1,15 @@
+<svg width="600" height="480" viewBox="0 0 600 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="480" rx="32" fill="#E2E8F0" />
+  <rect x="110" y="80" width="380" height="240" rx="24" fill="#CBD5F5" />
+  <rect x="160" y="340" width="280" height="32" rx="16" fill="#94A3B8" />
+  <text
+    x="300"
+    y="220"
+    text-anchor="middle"
+    font-family="Inter, sans-serif"
+    font-size="24"
+    fill="#0F172A"
+  >
+    Product Preview
+  </text>
+</svg>

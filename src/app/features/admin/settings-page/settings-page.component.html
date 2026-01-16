@@ -1,0 +1,122 @@
+<div class="page-header">
+  <h2 class="page-title">Settings</h2>
+  <p class="page-subtitle">Configure payment gateway, email, and product details.</p>
+</div>
+
+<div class="settings-grid" *ngIf="!loading(); else loadingState">
+  <section class="card">
+    <h3>Payment Settings</h3>
+    <form class="form-grid" [formGroup]="paymentForm" (ngSubmit)="savePaymentSettings()">
+      <div class="form-field">
+        <label>Gateway</label>
+        <select class="select" formControlName="payment_gateway">
+          <option value="stripe">Stripe</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Public key</label>
+        <input class="input" type="text" formControlName="payment_public_key" />
+      </div>
+      <div class="form-field">
+        <label>Secret key</label>
+        <input class="input" type="password" formControlName="payment_secret_key" />
+        <small class="helper">Leave blank to keep current secret.</small>
+      </div>
+      <div class="form-grid two">
+        <div class="form-field">
+          <label>Currency</label>
+          <input class="input" type="text" formControlName="currency" />
+        </div>
+        <div class="form-field">
+          <label>Success URL</label>
+          <input class="input" type="text" formControlName="success_url" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Cancel URL</label>
+        <input class="input" type="text" formControlName="cancel_url" />
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save payment settings</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Email Settings</h3>
+    <form class="form-grid" [formGroup]="emailForm" (ngSubmit)="saveEmailSettings()">
+      <div class="form-field">
+        <label>Sender email</label>
+        <input class="input" type="email" formControlName="sender_email" />
+      </div>
+      <div class="form-field">
+        <label>Admin notification email</label>
+        <input class="input" type="email" formControlName="admin_email" />
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save email settings</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Product Settings</h3>
+    <form class="form-grid" [formGroup]="productForm" (ngSubmit)="saveProductSettings()">
+      <div class="form-field">
+        <label>Name</label>
+        <input class="input" type="text" formControlName="name" />
+      </div>
+      <div class="form-field">
+        <label>Description</label>
+        <textarea class="textarea" formControlName="description"></textarea>
+      </div>
+      <div class="form-grid two">
+        <div class="form-field">
+          <label>Price</label>
+          <input class="input" type="number" formControlName="price" />
+        </div>
+        <div class="form-field">
+          <label>Currency</label>
+          <input class="input" type="text" formControlName="currency" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Features (comma separated)</label>
+        <input class="input" type="text" formControlName="features" />
+      </div>
+      <div class="form-field">
+        <label>Product image</label>
+        <input class="input" type="file" (change)="uploadImage($event)" />
+        <img *ngIf="product()?.image_url" [src]="product()?.image_url" alt="Product preview" />
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save product settings</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h3>Email Templates</h3>
+    <form class="form-grid" [formGroup]="templateForm" (ngSubmit)="saveTemplate()">
+      <div class="form-field">
+        <label>Template</label>
+        <select
+          class="select"
+          formControlName="templateId"
+          (change)="selectTemplate(($event.target as HTMLSelectElement).value)"
+        >
+          <option *ngFor="let template of templates()" [value]="template.id">
+            {{ template.name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Subject</label>
+        <input class="input" type="text" formControlName="subject" />
+      </div>
+      <div class="form-field">
+        <label>HTML</label>
+        <textarea class="textarea" formControlName="html"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save template</button>
+    </form>
+  </section>
+</div>
+
+<ng-template #loadingState>
+  <div class="card">Loading settings...</div>
+</ng-template>
