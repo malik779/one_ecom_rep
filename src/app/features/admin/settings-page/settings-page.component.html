@@ -1,6 +1,9 @@
 <div class="page-header">
-  <h2 class="page-title">Settings</h2>
-  <p class="page-subtitle">Configure payment gateway, email, and product details.</p>
+  <div>
+    <h2 class="page-title">Settings</h2>
+    <p class="page-subtitle">Configure payment gateway, email, and product details.</p>
+  </div>
+  <a routerLink="/" class="btn btn-ghost">View Product Page</a>
 </div>
 
 <div class="settings-grid" *ngIf="!loading(); else loadingState">
@@ -97,7 +100,7 @@
         <select
           class="select"
           formControlName="templateId"
-          (change)="selectTemplate(($event.target as HTMLSelectElement).value)"
+          (change)="selectTemplate($any($event.target).value)"
         >
           <option *ngFor="let template of templates()" [value]="template.id">
             {{ template.name }}

@@ -9,6 +9,7 @@ export const mockProduct: Product = {
   price: 249,
   currency: 'USD',
   image_url: '/product-placeholder.svg',
+  image_urls: ['/product-placeholder.svg'],
   features: [
     'Adaptive noise cancellation',
     '40-hour battery life',

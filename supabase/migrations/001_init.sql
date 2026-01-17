@@ -4,6 +4,11 @@ create type public.order_status as enum ('pending', 'paid', 'failed', 'refunded'
 create type public.payment_status as enum ('created', 'processing', 'paid', 'failed');
 create type public.payment_provider as enum ('stripe');
 
+create table public.admin_users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
@@ -155,10 +160,6 @@ create table public.email_templates (
   updated_at timestamptz not null default now()
 );
 
-create table public.admin_users (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now()
-);
 
 create trigger products_updated
 before update on public.products

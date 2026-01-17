@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { PostgrestFilterBuilder } from '@supabase/supabase-js';
 import { SupabaseClientService } from '../services/supabase-client.service';
 import { AdminAppSettings, EmailTemplate, PublicAppSettings } from '../models/settings.model';
 import { Order, OrderItem, OrderSummary } from '../models/order.model';
@@ -56,7 +55,7 @@ export class ApiService {
   async getProduct(productId?: string): Promise<Product | null> {
     let query = this.client
       .from('products')
-      .select('id,name,description,price,currency,image_url,features,is_active')
+      .select('id,name,description,price,currency,image_url,image_urls,features,is_active,size,color,material,brand,ply_rating,about')
       .eq('is_active', true);
 
     if (productId) {
@@ -122,7 +121,7 @@ export class ApiService {
   }
 
   async listOrders(filters: OrderFilters): Promise<OrderSummary[]> {
-    let query: PostgrestFilterBuilder<any, any, any> = this.client
+    let query = this.client
       .from('orders')
       .select(
         'id,full_name,email,phone,billing_address,country,status,total_amount,currency,transaction_id,created_at,order_items(id,product_id,quantity,unit_price,products(name))'

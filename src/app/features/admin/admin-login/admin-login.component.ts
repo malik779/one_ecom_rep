@@ -14,17 +14,19 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class AdminLoginComponent {
   readonly loading = signal(false);
-  readonly form = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
-  });
+  readonly form: ReturnType<FormBuilder['group']>;
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly toastService: ToastService
-  ) {}
+  ) {
+    this.form = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
 
   async submit(): Promise<void> {
     if (this.form.invalid) {

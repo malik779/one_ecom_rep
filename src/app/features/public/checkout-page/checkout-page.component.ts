@@ -18,23 +18,14 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
   styleUrl: './checkout-page.component.scss'
 })
 export class CheckoutPageComponent implements OnInit {
-  readonly product = this.productStore.product;
-  readonly settings = this.settingsStore.settings;
-  readonly loading = computed(() => this.productStore.loading() || this.settingsStore.loading());
+  readonly product;
+  readonly settings;
+  readonly loading;
   readonly processing = signal(false);
 
-  readonly currency = computed(
-    () => this.product()?.currency ?? this.settings()?.currency ?? 'USD'
-  );
+  readonly currency: ReturnType<typeof computed<string>>;
 
-  readonly form = this.formBuilder.group({
-    fullName: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{7,}$/)]],
-    billingAddress: ['', [Validators.required, Validators.minLength(10)]],
-    country: ['', Validators.required],
-    terms: [false, Validators.requiredTrue]
-  });
+  readonly form: ReturnType<FormBuilder['group']>;
 
   readonly countries = ['United States', 'Canada', 'United Kingdom', 'Germany', 'Australia', 'Other'];
 
@@ -45,7 +36,22 @@ export class CheckoutPageComponent implements OnInit {
     private readonly orderService: OrderService,
     private readonly paymentService: PaymentService,
     private readonly toastService: ToastService
-  ) {}
+  ) {
+    this.product = this.productStore.product;
+    this.settings = this.settingsStore.settings;
+    this.loading = computed(() => this.productStore.loading() || this.settingsStore.loading());
+    this.currency = computed(
+      () => this.product()?.currency ?? this.settings()?.currency ?? 'USD'
+    );
+    this.form = this.formBuilder.group({
+      fullName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-]{7,}$/)]],
+      billingAddress: ['', [Validators.required, Validators.minLength(10)]],
+      country: ['', Validators.required],
+      terms: [false, Validators.requiredTrue]
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.settingsStore.loadSettings();
@@ -94,13 +100,16 @@ export class CheckoutPageComponent implements OnInit {
       });
 
       const publicKey = this.settings()?.payment_public_key;
-      if (publicKey) {
-        const stripe = await loadStripe(publicKey);
-        if (stripe) {
-          await stripe.redirectToCheckout({ sessionId: session.sessionId });
-          return;
-        }
-      }
+      // if (publicKey) {
+      //   const stripe = await loadStripe(publicKey);
+      //   if (stripe) {
+      //     const result = await (stripe as any).redirectToCheckout({ sessionId: session.sessionId });
+      //     if (result?.error) {
+      //       throw result.error;
+      //     }
+      //     return;
+      //   }
+      // }
 
       window.location.assign(session.checkoutUrl);
     } catch (error: any) {

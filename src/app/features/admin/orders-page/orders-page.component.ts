@@ -13,21 +13,25 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
   styleUrl: './orders-page.component.scss'
 })
 export class OrdersPageComponent implements OnInit {
-  readonly filtersForm = this.formBuilder.group({
-    status: [''],
-    email: [''],
-    startDate: [''],
-    endDate: ['']
-  });
-
+  readonly filtersForm: ReturnType<FormBuilder['group']>;
   readonly selectedOrder = signal<OrderSummary | null>(null);
-  readonly orders = this.ordersStore.orders;
-  readonly loading = this.ordersStore.loading;
-  readonly error = this.ordersStore.error;
+  readonly orders;
+  readonly loading;
+  readonly error;
 
   readonly statusOptions = ['pending', 'paid', 'failed', 'refunded'];
 
-  constructor(private readonly formBuilder: FormBuilder, private readonly ordersStore: OrdersStore) {}
+  constructor(private readonly formBuilder: FormBuilder, private readonly ordersStore: OrdersStore) {
+    this.filtersForm = this.formBuilder.group({
+      status: [''],
+      email: [''],
+      startDate: [''],
+      endDate: ['']
+    });
+    this.orders = this.ordersStore.orders;
+    this.loading = this.ordersStore.loading;
+    this.error = this.ordersStore.error;
+  }
 
   async ngOnInit(): Promise<void> {
     await this.applyFilters();

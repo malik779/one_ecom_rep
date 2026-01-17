@@ -4,7 +4,6 @@ import { SupabaseClientService } from './supabase-client.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly supabase = this.supabaseClient.client;
   private readonly sessionSignal = signal<Session | null>(null);
   private readonly adminSignal = signal(false);
   private readonly loadingSignal = signal(true);
@@ -15,6 +14,10 @@ export class AuthService {
   readonly loading = this.loadingSignal.asReadonly();
 
   constructor(private readonly supabaseClient: SupabaseClientService) {}
+
+  private get supabase() {
+    return this.supabaseClient.client;
+  }
 
   async initialize(): Promise<void> {
     if (this.initialized) {

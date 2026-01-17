@@ -45,7 +45,23 @@
   </div>
 
   <div class="card product-card">
-    <img [src]="imageUrl()" alt="Product preview" />
+    <div class="image-gallery">
+      <div class="main-image">
+        <img [src]="selectedImage()" [alt]="product()?.name || 'Product preview'" />
+      </div>
+      <div class="thumbnail-images" *ngIf="imageUrls().length > 1">
+        <button
+          type="button"
+          class="thumbnail"
+          *ngFor="let imageUrl of imageUrls(); let i = index"
+          [class.active]="selectedImageIndex() === i"
+          (click)="selectImage(i)"
+          [aria-label]="'Select image ' + (i + 1)"
+        >
+          <img [src]="imageUrl" [alt]="'Product thumbnail ' + (i + 1)" />
+        </button>
+      </div>
+    </div>
     <div class="product-meta">
       <div>
         <strong>Premium delivery</strong>
@@ -56,5 +72,38 @@
         <p>24/7 concierge setup guidance.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="product-details" *ngIf="!loading() && product()">
+  <h2>Product Details</h2>
+  <div class="details-grid">
+    <div class="detail-item" *ngIf="product()?.size">
+      <strong>Size:</strong>
+      <span>{{ product()?.size }}</span>
+    </div>
+    <div class="detail-item" *ngIf="product()?.color">
+      <strong>Colour:</strong>
+      <span>{{ product()?.color }}</span>
+    </div>
+    <div class="detail-item" *ngIf="product()?.material">
+      <strong>Material:</strong>
+      <span>{{ product()?.material }}</span>
+    </div>
+    <div class="detail-item" *ngIf="product()?.brand">
+      <strong>Brand:</strong>
+      <span>{{ product()?.brand }}</span>
+    </div>
+    <div class="detail-item" *ngIf="product()?.ply_rating">
+      <strong>Ply rating:</strong>
+      <span>{{ product()?.ply_rating }}</span>
+    </div>
+  </div>
+
+  <div class="about-section" *ngIf="product()?.about && product()?.about!.length > 0">
+    <h3>About this item</h3>
+    <ul class="about-list">
+      <li *ngFor="let item of product()?.about">{{ item }}</li>
+    </ul>
   </div>
 </section>

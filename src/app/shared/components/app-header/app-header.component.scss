@@ -34,6 +34,130 @@
   font-weight: 600;
 }
 
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+
+  &:hover {
+    background: var(--surface);
+    color: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(91, 124, 250, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.profile-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+  animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to bottom, rgba(91, 124, 250, 0.05), transparent);
+}
+
+.dropdown-email {
+  font-size: 0.813rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  word-break: break-word;
+  line-height: 1.4;
+  display: block;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 0.938rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+
+  &:hover {
+    background: rgba(91, 124, 250, 0.08);
+    color: var(--primary);
+  }
+
+  &:active {
+    background: rgba(91, 124, 250, 0.12);
+  }
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 17px;
+    height: 17px;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+
+  &:hover svg {
+    color: var(--primary);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .header {
     background: rgba(11, 18, 32, 0.9);

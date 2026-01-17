@@ -1,17 +1,18 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { SettingsService } from '../../../core/services/settings.service';
 import { ProductService } from '../../../core/services/product.service';
 import { EmailTemplateService } from '../../../core/services/email-template.service';
 import { Product } from '../../../core/models/product.model';
-import { EmailTemplate } from '../../../core/models/settings.model';
+import { EmailTemplate, PaymentGateway } from '../../../core/models/settings.model';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [ReactiveFormsModule, NgFor, NgIf],
+  imports: [ReactiveFormsModule, NgFor, NgIf, RouterLink],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.scss'
 })
@@ -22,41 +23,47 @@ export class SettingsPageComponent implements OnInit {
   readonly product = signal<Product | null>(null);
   readonly saving = signal(false);
 
-  readonly paymentForm = this.formBuilder.group({
-    payment_gateway: ['stripe', Validators.required],
-    payment_public_key: [''],
-    payment_secret_key: [''],
-    currency: ['USD', Validators.required],
-    success_url: [''],
-    cancel_url: ['']
-  });
-
-  readonly emailForm = this.formBuilder.group({
-    sender_email: ['', Validators.required],
-    admin_email: ['', Validators.required]
-  });
-
-  readonly productForm = this.formBuilder.group({
-    name: ['', Validators.required],
-    description: ['', Validators.required],
-    price: [0, [Validators.required, Validators.min(1)]],
-    currency: ['USD', Validators.required],
-    features: ['', Validators.required]
-  });
-
-  readonly templateForm = this.formBuilder.group({
-    templateId: ['', Validators.required],
-    subject: ['', Validators.required],
-    html: ['', Validators.required]
-  });
+  readonly paymentForm: ReturnType<FormBuilder['group']>;
+  readonly emailForm: ReturnType<FormBuilder['group']>;
+  readonly productForm: ReturnType<FormBuilder['group']>;
+  readonly templateForm: ReturnType<FormBuilder['group']>;
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly settingsService: SettingsService,
     private readonly productService: ProductService,
     private readonly emailTemplateService: EmailTemplateService,
-    private readonly toastService: ToastService
-  ) {}
+    private readonly toastService: ToastService,
+    private readonly router: Router
+  ) {
+    this.paymentForm = this.formBuilder.group({
+      payment_gateway: ['stripe', Validators.required],
+      payment_public_key: [''],
+      payment_secret_key: [''],
+      currency: ['USD', Validators.required],
+      success_url: [''],
+      cancel_url: ['']
+    });
+
+    this.emailForm = this.formBuilder.group({
+      sender_email: ['', Validators.required],
+      admin_email: ['', Validators.required]
+    });
+
+    this.productForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(1)]],
+      currency: ['USD', Validators.required],
+      features: ['', Validators.required]
+    });
+
+    this.templateForm = this.formBuilder.group({
+      templateId: ['', Validators.required],
+      subject: ['', Validators.required],
+      html: ['', Validators.required]
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.loadSettings();
@@ -125,7 +132,7 @@ export class SettingsPageComponent implements OnInit {
     try {
       const value = this.paymentForm.getRawValue();
       await this.settingsService.updateSettings({
-        payment_gateway: value.payment_gateway ?? 'stripe',
+        payment_gateway: (value.payment_gateway ?? 'stripe') as PaymentGateway,
         payment_public_key: value.payment_public_key ?? '',
         payment_secret_key: value.payment_secret_key || undefined,
         currency: value.currency ?? 'USD',
@@ -166,7 +173,7 @@ export class SettingsPageComponent implements OnInit {
       const value = this.productForm.getRawValue();
       const features = (value.features ?? '')
         .split(',')
-        .map((feature) => feature.trim())
+        .map((feature: string) => feature.trim())
         .filter(Boolean);
       const updated = await this.productService.updateProduct({
         id: this.product()!.id,
