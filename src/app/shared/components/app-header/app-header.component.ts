@@ -1,7 +1,8 @@
-import { Component, computed, inject, signal, HostListener } from '@angular/core';
+import { Component, computed, inject, signal, HostListener, OnInit, OnDestroy, effect } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { SettingsStore } from '../../../core/state/settings.store';
 
 @Component({
   selector: 'app-header',
@@ -10,12 +11,17 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './app-header.component.html',
   styleUrl: './app-header.component.scss'
 })
-export class AppHeaderComponent {
+export class AppHeaderComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly settingsStore = inject(SettingsStore);
   
   readonly session = this.authService.session;
   readonly isAdmin = this.authService.isAdmin;
+  readonly settings = this.settingsStore.settings;
+  readonly websiteName = computed(() => this.settings()?.website_name || 'One Product Store');
+  readonly logoUrl = computed(() => this.settings()?.logo_url || null);
+  
   readonly isLoggedIn = computed(() => {
     const session = this.session();
     const admin = this.isAdmin();
@@ -23,6 +29,48 @@ export class AppHeaderComponent {
   });
   readonly userEmail = computed(() => this.session()?.user?.email ?? '');
   readonly dropdownOpen = signal(false);
+
+  constructor() {
+    // Update document title and favicon when settings change
+    effect(() => {
+      const settings = this.settings();
+      if (settings) {
+        this.updateDocumentTitle();
+        this.updateFavicon();
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    // Load settings if not already loaded
+    if (!this.settings()) {
+      this.settingsStore.loadSettings();
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Effect cleanup is handled automatically
+  }
+
+  private updateDocumentTitle(): void {
+    const name = this.websiteName();
+    if (name) {
+      document.title = name;
+    }
+  }
+
+  private updateFavicon(): void {
+    const faviconUrl = this.settings()?.favicon_url;
+    if (faviconUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = faviconUrl;
+    }
+  }
 
   toggleDropdown(): void {
     this.dropdownOpen.update((open) => !open);

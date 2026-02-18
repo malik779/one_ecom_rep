@@ -1,0 +1,192 @@
+<form [formGroup]="form" (ngSubmit)="save()" class="product-form">
+  <!-- Basic Information -->
+  <div class="form-section">
+    <h3>Basic Information</h3>
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Product Name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter product name" />
+        <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
+        <mat-error *ngIf="form.get('name')?.hasError('minlength')">Name must be at least 2 characters</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="4" placeholder="Enter product description"></textarea>
+        <mat-error *ngIf="form.get('description')?.hasError('required')">Description is required</mat-error>
+        <mat-error *ngIf="form.get('description')?.hasError('minlength')">Description must be at least 10 characters</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Price</mat-label>
+        <input matInput type="number" formControlName="price" placeholder="0.00" step="0.01" />
+        <mat-error *ngIf="form.get('price')?.hasError('required')">Price is required</mat-error>
+        <mat-error *ngIf="form.get('price')?.hasError('min')">Price must be positive</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Currency</mat-label>
+        <input matInput formControlName="currency" placeholder="USD" maxlength="3" />
+        <mat-error *ngIf="form.get('currency')?.hasError('required')">Currency is required</mat-error>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="is_active">Active</mat-checkbox>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="form-section">
+    <div class="section-header">
+      <h3>Features</h3>
+      <button type="button" mat-icon-button (click)="addFeature()" matTooltip="Add feature" [attr.aria-label]="'Add feature'">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <div formArrayName="features" class="array-items">
+      <div *ngFor="let feature of featuresArray.controls; let i = index" class="array-item">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>Feature {{ i + 1 }}</mat-label>
+          <input matInput [formControl]="$any(feature)" placeholder="Enter feature" />
+        </mat-form-field>
+        <button type="button" mat-icon-button (click)="removeFeature(i)" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Details -->
+  <div class="form-section">
+    <h3>Additional Details</h3>
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Size</mat-label>
+        <input matInput formControlName="size" placeholder="e.g., 100 Pack" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Color</mat-label>
+        <input matInput formControlName="color" placeholder="e.g., White" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Material</mat-label>
+        <input matInput formControlName="material" placeholder="e.g., Airlaid Paper" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Brand</mat-label>
+        <input matInput formControlName="brand" placeholder="e.g., Peachicha" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ply Rating</mat-label>
+        <input matInput formControlName="ply_rating" placeholder="e.g., 1-Ply" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <div class="form-section">
+    <div class="section-header">
+      <h3>About</h3>
+      <button type="button" mat-icon-button (click)="addAboutItem()" matTooltip="Add about item" [attr.aria-label]="'Add about item'">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <div formArrayName="about" class="array-items">
+      <div *ngFor="let item of aboutArray.controls; let i = index" class="array-item">
+        <mat-form-field appearance="outline" class="flex-1">
+          <mat-label>About Item {{ i + 1 }}</mat-label>
+          <textarea matInput [formControl]="$any(item)" rows="2" placeholder="Enter about item"></textarea>
+        </mat-form-field>
+        <button type="button" mat-icon-button (click)="removeAboutItem(i)" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Images -->
+  <div class="form-section">
+    <h3>Product Images</h3>
+    <p class="section-description">Upload product images. Click on an image to set it as the main image (shown first).</p>
+    
+    <!-- Existing Images -->
+    <div *ngIf="uploadedImageUrls().length > 0" class="image-preview-grid">
+      <div *ngFor="let url of uploadedImageUrls(); let i = index" class="image-preview" [class.main-image]="isMainImage(i, true)">
+        <img [src]="url" alt="Product image" />
+        <button 
+          type="button" 
+          mat-icon-button 
+          class="remove-image" 
+          (click)="removeUploadedImage(i)" 
+          color="warn"
+          matTooltip="Remove image"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+        <button 
+          type="button" 
+          mat-icon-button 
+          class="set-main-image" 
+          (click)="setMainImage(i, true)"
+          [color]="isMainImage(i, true) ? 'primary' : ''"
+          [matTooltip]="isMainImage(i, true) ? 'Main image' : 'Set as main image'"
+        >
+          <mat-icon>{{ isMainImage(i, true) ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+        <div *ngIf="isMainImage(i, true)" class="main-badge">Main</div>
+      </div>
+    </div>
+
+    <!-- New Image Previews -->
+    <div *ngIf="imageUrls().length > 0" class="image-preview-grid">
+      <div *ngFor="let url of imageUrls(); let i = index" class="image-preview" [class.main-image]="isMainImage(i, false)">
+        <img [src]="url" alt="New product image" />
+        <button 
+          type="button" 
+          mat-icon-button 
+          class="remove-image" 
+          (click)="removeImage(i)" 
+          color="warn"
+          matTooltip="Remove image"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+        <button 
+          type="button" 
+          mat-icon-button 
+          class="set-main-image" 
+          (click)="setMainImage(i, false)"
+          [color]="isMainImage(i, false) ? 'primary' : ''"
+          [matTooltip]="isMainImage(i, false) ? 'Main image' : 'Set as main image'"
+        >
+          <mat-icon>{{ isMainImage(i, false) ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+        <div *ngIf="isMainImage(i, false)" class="main-badge">Main</div>
+      </div>
+    </div>
+
+    <input
+      type="file"
+      #fileInput
+      multiple
+      accept="image/*"
+      (change)="onFileSelected($event)"
+      style="display: none"
+    />
+    <button type="button" mat-raised-button (click)="fileInput.click()" [disabled]="uploading()">
+      <mat-icon>upload</mat-icon>
+      {{ uploading() ? 'Uploading...' : 'Upload Images' }}
+    </button>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button type="button" mat-button (click)="cancel()">Cancel</button>
+    <button type="submit" mat-raised-button color="primary" [disabled]="saving() || uploading() || form.invalid">
+      {{ saving() ? 'Saving...' : (isEditMode() ? 'Update Product' : 'Create Product') }}
+    </button>
+  </div>
+</form>

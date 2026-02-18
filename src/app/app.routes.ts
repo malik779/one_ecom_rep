@@ -12,6 +12,14 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
+          import('./features/public/home-page/home-page.component').then(
+            (m) => m.HomePageComponent
+          ),
+        title: 'Home'
+      },
+      {
+        path: 'products/:id',
+        loadComponent: () =>
           import('./features/public/product-page/product-page.component').then(
             (m) => m.ProductPageComponent
           ),
@@ -70,6 +78,30 @@ export const routes: Routes = [
                 (m) => m.OrdersPageComponent
               ),
             title: 'Orders'
+          },
+          {
+            path: 'products',
+            loadComponent: () =>
+              import('./features/admin/products-page/products-page.component').then(
+                (m) => m.ProductsPageComponent
+              ),
+            title: 'Products'
+          },
+          {
+            path: 'products/:id/edit',
+            loadComponent: () =>
+              import('./features/admin/product-edit-page/product-edit-page.component').then(
+                (m) => m.ProductEditPageComponent
+              ),
+            title: 'Edit Product'
+          },
+          {
+            path: 'products/new/edit',
+            loadComponent: () =>
+              import('./features/admin/product-edit-page/product-edit-page.component').then(
+                (m) => m.ProductEditPageComponent
+              ),
+            title: 'Create Product'
           },
           {
             path: 'settings',

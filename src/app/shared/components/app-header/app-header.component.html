@@ -1,12 +1,17 @@
 <header class="header">
   <div class="app-container header-inner">
-    <a routerLink="/" class="logo">One Product Store</a>
+
+    <a routerLink="/" class="logo">
+      <img *ngIf="logoUrl()" [src]="logoUrl()" [alt]="websiteName()" class="logo-image" />
+      <span>{{ websiteName() }}</span>
+    </a>
     <nav class="nav">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-        >Product</a
+        >Home</a
       >
-      <a routerLink="/checkout" routerLinkActive="active">Checkout</a>
+    
       <ng-container *ngIf="isLoggedIn(); else adminLink">
+
         <div class="profile-dropdown">
           <button
             type="button"
@@ -73,7 +78,7 @@
         </div>
       </ng-container>
       <ng-template #adminLink>
-        <a routerLink="/admin/login" routerLinkActive="active">Admin</a>
+        <a routerLink="/admin/login" routerLinkActive="active">Login</a>
       </ng-template>
     </nav>
   </div>

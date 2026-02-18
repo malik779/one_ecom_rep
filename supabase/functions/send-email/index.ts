@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
 
     const { data: settings } = await supabaseAdmin
       .from('app_settings')
-      .select('sender_email,admin_email')
+      .select('sender_email,admin_email,smtp_host,smtp_user,smtp_pass,smtp_port')
       .limit(1)
       .maybeSingle();
 
@@ -41,10 +41,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    const smtpHost = Deno.env.get('SMTP_HOST') ?? '';
-    const smtpUser = Deno.env.get('SMTP_USER') ?? '';
-    const smtpPass = Deno.env.get('SMTP_PASS') ?? '';
-    const smtpPort = Number(Deno.env.get('SMTP_PORT') ?? 465);
+    // Use database settings with fallback to environment variables
+    const smtpHost = settings?.smtp_host ?? Deno.env.get('SMTP_HOST') ?? '';
+    const smtpUser = settings?.smtp_user ?? Deno.env.get('SMTP_USER') ?? '';
+    const smtpPass = settings?.smtp_pass ?? Deno.env.get('SMTP_PASS') ?? '';
+    const smtpPort = settings?.smtp_port ?? Number(Deno.env.get('SMTP_PORT') ?? 465);
     const sender = settings?.sender_email ?? Deno.env.get('SMTP_FROM') ?? smtpUser;
     const recipient = to ?? settings?.admin_email;
 

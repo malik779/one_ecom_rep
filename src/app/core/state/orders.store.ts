@@ -17,6 +17,7 @@ export class OrdersStore {
   async loadOrders(filters: {
     status?: string;
     email?: string;
+    fullName?: string;
     startDate?: string;
     endDate?: string;
   }): Promise<void> {
@@ -30,5 +31,19 @@ export class OrdersStore {
     } finally {
       this.loadingSignal.set(false);
     }
+  }
+
+  async deleteOrder(orderId: string): Promise<void> {
+    this.errorSignal.set(null);
+    await this.orderService.deleteOrder(orderId);
+    this.ordersSignal.update((orders) => orders.filter((o) => o.id !== orderId));
+  }
+
+  async deleteOrders(orderIds: string[]): Promise<void> {
+    if (orderIds.length === 0) return;
+    this.errorSignal.set(null);
+    await this.orderService.deleteOrders(orderIds);
+    const idSet = new Set(orderIds);
+    this.ordersSignal.update((orders) => orders.filter((o) => !idSet.has(o.id)));
   }
 }

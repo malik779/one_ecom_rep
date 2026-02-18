@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments/environment';
 import { PublicAppSettings } from '../models/settings.model';
 import { SettingsService } from '../services/settings.service';
 import { mockPublicSettings } from './mock-data';
@@ -16,20 +16,37 @@ export class SettingsStore {
 
   constructor(private readonly settingsService: SettingsService) {}
 
-  async loadSettings(): Promise<void> {
+  async loadSettings(force = false): Promise<void> {
+    // Always ensure loading state is reset before starting
+    if (this.loadingSignal()) {
+      // If already loading, wait for it to complete or force reload
+      if (!force) {
+        return;
+      }
+    }
+
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
     try {
       if (environment.useMockData) {
         this.settingsSignal.set(mockPublicSettings);
+        this.loadingSignal.set(false);
         return;
       }
       const settings = await this.settingsService.getPublicSettings();
       this.settingsSignal.set(settings);
     } catch (error: any) {
       this.errorSignal.set(error?.message ?? 'Unable to load settings.');
+      // Don't clear settings on error - keep existing data
     } finally {
+      // Always ensure loading is set to false
       this.loadingSignal.set(false);
     }
+  }
+
+  clear(): void {
+    this.settingsSignal.set(null);
+    this.loadingSignal.set(false);
+    this.errorSignal.set(null);
   }
 }

@@ -5,11 +5,12 @@ import { PaymentService } from '../../../core/services/payment.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PaymentConfirmation } from '../../../core/models/payment.model';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-payment-success-page',
   standalone: true,
-  imports: [NgIf, RouterLink, SkeletonComponent],
+  imports: [NgIf, RouterLink, SkeletonComponent, BackButtonComponent],
   templateUrl: './payment-success-page.component.html',
   styleUrl: './payment-success-page.component.scss'
 })

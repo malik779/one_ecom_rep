@@ -1,0 +1,47 @@
+<section class="page-header">
+  <h1 class="page-title">Our Products</h1>
+  <p class="page-subtitle">Discover our premium collection of products</p>
+</section>
+
+<section *ngIf="loading(); else productsContent" class="products-grid">
+  <div class="product-card" *ngFor="let _ of [1,2,3,4,5,6]">
+    <app-skeleton height="200px" />
+    <app-skeleton height="24px" width="80%" />
+    <app-skeleton height="20px" width="60%" />
+    <app-skeleton height="32px" width="40%" />
+  </div>
+</section>
+
+<ng-template #productsContent>
+  <section *ngIf="error(); else productsList" class="error-message">
+    <p>{{ error() }}</p>
+  </section>
+
+  <ng-template #productsList>
+    <section *ngIf="products().length > 0; else noProducts" class="products-grid">
+      <article
+        class="product-card"
+        *ngFor="let product of products()"
+        (click)="navigateToProduct(product.id)"
+      >
+        <div class="product-image">
+          <img [src]="getProductImageUrl(product)" [alt]="product.name" />
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">{{ product.name }}</h3>
+          <p class="product-description">{{ product.description }}</p>
+          <div class="product-footer">
+            <div class="product-price">{{ product.price | currency: currency() }}</div>
+            <button type="button" class="btn btn-primary">View Details</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #noProducts>
+      <section class="empty-state">
+        <p>No products available at the moment.</p>
+      </section>
+    </ng-template>
+  </ng-template>
+</ng-template>

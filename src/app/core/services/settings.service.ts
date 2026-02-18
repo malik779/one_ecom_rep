@@ -14,7 +14,7 @@ export class SettingsService {
     return this.api.getAdminSettings();
   }
 
-  updateSettings(settings: Partial<AdminAppSettings> & { payment_secret_key?: string }) {
+  updateSettings(settings: Partial<AdminAppSettings> & { payment_secret_key?: string; smtp_pass?: string }) {
     return this.api.updateAdminSettings(settings);
   }
 }

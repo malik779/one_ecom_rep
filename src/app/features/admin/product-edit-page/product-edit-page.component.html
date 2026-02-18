@@ -1,0 +1,15 @@
+<div class="page-header">
+  <h1 class="page-title">{{ mode === 'create' ? 'Create Product' : 'Edit Product' }}</h1>
+</div>
+@if(loading()){
+<div  class="loading-container">
+  <app-skeleton height="600px" />
+</div>
+}@else{
+  <app-product-form
+    [product]="product()"
+    [mode]="mode"
+    (saved)="onSaved($event)"
+    (cancelled)="onCancelled()"
+    />
+}

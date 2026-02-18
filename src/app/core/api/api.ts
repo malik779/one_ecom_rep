@@ -8,6 +8,7 @@ import { Product } from '../models/product.model';
 interface OrderFilters {
   status?: string;
   email?: string;
+  fullName?: string;
   startDate?: string;
   endDate?: string;
 }
@@ -32,17 +33,24 @@ export class ApiService {
     const { data, error } = await this.client
       .from('app_settings')
       .select(
-        'payment_gateway,payment_public_key,currency,success_url,cancel_url,product_id,sender_email,admin_email'
+        'payment_gateway,payment_public_key,currency,success_url,cancel_url,product_id,sender_email,admin_email,smtp_host,smtp_user,smtp_port,website_name,logo_url,favicon_url'
       )
       .limit(1)
       .maybeSingle();
     if (error) {
       throw error;
     }
-    return data;
+    // smtp_pass is intentionally excluded for security - it's only used for updates
+    if (!data) {
+      return null;
+    }
+    return {
+      ...data,
+      smtp_pass: null
+    } as AdminAppSettings;
   }
 
-  async updateAdminSettings(settings: Partial<AdminAppSettings> & { payment_secret_key?: string }) {
+  async updateAdminSettings(settings: Partial<AdminAppSettings> & { payment_secret_key?: string; smtp_pass?: string }) {
     const { data, error } = await this.client.functions.invoke('admin-update-settings', {
       body: settings
     });
@@ -52,17 +60,46 @@ export class ApiService {
     return data;
   }
 
-  async getProduct(productId?: string): Promise<Product | null> {
+  async getProduct(productId: string, includeInactive = false): Promise<Product | null> {
     let query = this.client
       .from('products')
-      .select('id,name,description,price,currency,image_url,image_urls,features,is_active,size,color,material,brand,ply_rating,about')
-      .eq('is_active', true);
+      .select('id,name,description,price,currency,image_url,image_urls,features,is_active,size,color,material,brand,ply_rating,about,created_at,updated_at')
+      .eq('id', productId);
 
-    if (productId) {
-      query = query.eq('id', productId);
+    if (!includeInactive) {
+      query = query.eq('is_active', true);
     }
 
-    const { data, error } = await query.limit(1).maybeSingle();
+    const { data, error } = await query.maybeSingle();
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
+  async getAllProducts(includeInactive = false): Promise<Product[]> {
+    let query = this.client
+      .from('products')
+      .select('id,name,description,price,currency,image_url,image_urls,features,is_active,size,color,material,brand,ply_rating,about,created_at,updated_at')
+      .order('created_at', { ascending: false });
+
+    if (!includeInactive) {
+      query = query.eq('is_active', true);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      throw error;
+    }
+    return data ?? [];
+  }
+
+  async createProduct(product: Omit<Product, 'id'>): Promise<Product> {
+    const { data, error } = await this.client
+      .from('products')
+      .insert(product)
+      .select()
+      .single();
     if (error) {
       throw error;
     }
@@ -82,9 +119,54 @@ export class ApiService {
     return data;
   }
 
+  async deleteProduct(productId: string): Promise<void> {
+    const { error } = await this.client
+      .from('products')
+      .delete()
+      .eq('id', productId);
+    if (error) {
+      throw error;
+    }
+  }
+
   async uploadProductImage(file: File, productId: string): Promise<string> {
     const extension = file.name.split('.').pop() ?? 'png';
     const path = `product-${productId}-${Date.now()}.${extension}`;
+    const { error } = await this.client.storage
+      .from('product-images')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data } = this.client.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  async uploadProductImages(files: File[], productId: string): Promise<string[]> {
+    const uploadPromises = files.map((file) => this.uploadProductImage(file, productId));
+    return Promise.all(uploadPromises);
+  }
+
+  async uploadLogo(file: File): Promise<string> {
+    const extension = file.name.split('.').pop() ?? 'png';
+    const path = `logo-${Date.now()}.${extension}`;
+    const { error } = await this.client.storage
+      .from('product-images')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data } = this.client.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  async uploadFavicon(file: File): Promise<string> {
+    const extension = file.name.split('.').pop() ?? 'ico';
+    const path = `favicon-${Date.now()}.${extension}`;
     const { error } = await this.client.storage
       .from('product-images')
       .upload(path, file, { upsert: true, contentType: file.type });
@@ -126,6 +208,7 @@ export class ApiService {
       .select(
         'id,full_name,email,phone,billing_address,country,status,total_amount,currency,transaction_id,created_at,order_items(id,product_id,quantity,unit_price,products(name))'
       )
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
 
     if (filters.status) {
@@ -133,6 +216,9 @@ export class ApiService {
     }
     if (filters.email) {
       query = query.ilike('email', `%${filters.email}%`);
+    }
+    if (filters.fullName) {
+      query = query.ilike('full_name', `%${filters.fullName}%`);
     }
     if (filters.startDate) {
       query = query.gte('created_at', filters.startDate);
@@ -153,6 +239,27 @@ export class ApiService {
         product_name: item.products?.name ?? 'Product'
       }))
     }));
+  }
+
+  async deleteOrder(orderId: string): Promise<void> {
+    const { error } = await this.client
+      .from('orders')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', orderId);
+    if (error) {
+      throw error;
+    }
+  }
+
+  async deleteOrders(orderIds: string[]): Promise<void> {
+    if (orderIds.length === 0) return;
+    const { error } = await this.client
+      .from('orders')
+      .update({ deleted_at: new Date().toISOString() })
+      .in('id', orderIds);
+    if (error) {
+      throw error;
+    }
   }
 
   async createPaymentSession(payload: {

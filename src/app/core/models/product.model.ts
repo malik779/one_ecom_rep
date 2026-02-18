@@ -8,6 +8,8 @@ export interface Product {
   image_urls: string[] | null;
   features: string[];
   is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
   // Additional product details
   size?: string;
   color?: string;

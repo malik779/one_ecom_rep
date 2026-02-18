@@ -1,3 +1,5 @@
+<app-back-button label="Back" fallbackRoute="/" />
+
 <div class="checkout-grid">
   <div class="card">
     <div class="page-header">
@@ -73,7 +75,6 @@
       <button class="btn btn-primary" type="submit" [disabled]="processing()">
         {{ processing() ? 'Redirecting...' : 'Pay securely' }}
       </button>
-      <a routerLink="/" class="btn btn-outline">Back to product</a>
     </form>
   </div>
 
@@ -81,8 +82,11 @@
     <h3>Order Summary</h3>
     <ng-container *ngIf="!loading(); else summaryLoading">
       <div class="summary-item">
-        <span>{{ product()?.name }}</span>
-        <strong>{{ product()?.price | currency: currency() }}</strong>
+        <div class="summary-product">
+          <span>{{ product()?.name }}</span>
+          <span class="summary-quantity" *ngIf="quantity() > 1">× {{ quantity() }}</span>
+        </div>
+        <strong>{{ (product()?.price ?? 0) * quantity() | currency: currency() }}</strong>
       </div>
       <div class="summary-meta">
         <p>Includes shipping, setup, and onboarding.</p>

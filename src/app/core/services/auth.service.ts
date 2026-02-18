@@ -1,10 +1,12 @@
-import { Injectable, signal } from '@angular/core';
-import { Session } from '@supabase/supabase-js';
+import { inject, Injectable, NgZone, signal } from '@angular/core';
 import { SupabaseClientService } from './supabase-client.service';
+import { SupabaseSession } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly sessionSignal = signal<Session | null>(null);
+  private readonly ngZone = inject(NgZone);
+  private readonly supabaseClient = inject(SupabaseClientService);
+  private readonly sessionSignal = signal<SupabaseSession | null>(null);
   private readonly adminSignal = signal(false);
   private readonly loadingSignal = signal(true);
   private initialized = false;
@@ -13,7 +15,7 @@ export class AuthService {
   readonly isAdmin = this.adminSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
 
-  constructor(private readonly supabaseClient: SupabaseClientService) {}
+  constructor() {}
 
   private get supabase() {
     return this.supabaseClient.client;
@@ -30,9 +32,12 @@ export class AuthService {
     this.loadingSignal.set(false);
 
     this.supabase.auth.onAuthStateChange(async (_event, session) => {
+      this.ngZone.run(async() => {
       this.sessionSignal.set(session);
-      await this.refreshAdminStatus();
-      this.loadingSignal.set(false);
+      console.log('auth state changed', session);
+        await this.refreshAdminStatus();
+        this.loadingSignal.set(false);
+      });
     });
   }
 

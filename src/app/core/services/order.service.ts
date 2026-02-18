@@ -27,9 +27,18 @@ export class OrderService {
   listOrders(filters: {
     status?: string;
     email?: string;
+    fullName?: string;
     startDate?: string;
     endDate?: string;
   }): Promise<OrderSummary[]> {
     return this.api.listOrders(filters);
+  }
+
+  deleteOrder(orderId: string): Promise<void> {
+    return this.api.deleteOrder(orderId);
+  }
+
+  deleteOrders(orderIds: string[]): Promise<void> {
+    return this.api.deleteOrders(orderIds);
   }
 }

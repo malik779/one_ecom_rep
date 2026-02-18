@@ -15,14 +15,26 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 700;
   font-size: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-image {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav {
   display: flex;
   gap: 18px;
   font-size: 0.95rem;
+  align-items: center;
 }
 
 .nav a {

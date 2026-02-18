@@ -23,6 +23,23 @@
   margin: 16px 0;
 }
 
+.summary-product {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  span:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+}
+
+.summary-quantity {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
 .summary-meta {
   color: var(--text-secondary);
   font-size: 0.9rem;

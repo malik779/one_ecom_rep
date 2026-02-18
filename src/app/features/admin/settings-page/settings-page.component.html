@@ -1,7 +1,7 @@
 <div class="page-header">
   <div>
     <h2 class="page-title">Settings</h2>
-    <p class="page-subtitle">Configure payment gateway, email, and product details.</p>
+    <p class="page-subtitle">Configure payment gateway, email, SMTP, and product details.</p>
   </div>
   <a routerLink="/" class="btn btn-ghost">View Product Page</a>
 </div>
@@ -39,7 +39,7 @@
         <label>Cancel URL</label>
         <input class="input" type="text" formControlName="cancel_url" />
       </div>
-      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save payment settings</button>
+      <button class="btn btn-primary" type="submit" [disabled]="saving() || paymentForm.invalid">Save payment settings</button>
     </form>
   </section>
 
@@ -59,38 +59,85 @@
   </section>
 
   <section class="card">
-    <h3>Product Settings</h3>
-    <form class="form-grid" [formGroup]="productForm" (ngSubmit)="saveProductSettings()">
+    <h3>Email Server Settings</h3>
+    <form class="form-grid" [formGroup]="smtpForm" (ngSubmit)="saveSmtpSettings()">
       <div class="form-field">
-        <label>Name</label>
-        <input class="input" type="text" formControlName="name" />
-      </div>
-      <div class="form-field">
-        <label>Description</label>
-        <textarea class="textarea" formControlName="description"></textarea>
-      </div>
-      <div class="form-grid two">
-        <div class="form-field">
-          <label>Price</label>
-          <input class="input" type="number" formControlName="price" />
-        </div>
-        <div class="form-field">
-          <label>Currency</label>
-          <input class="input" type="text" formControlName="currency" />
-        </div>
+        <label>Host</label>
+        <input class="input" type="text" formControlName="smtp_host" placeholder="smtp.example.com" />
       </div>
       <div class="form-field">
-        <label>Features (comma separated)</label>
-        <input class="input" type="text" formControlName="features" />
+        <label>SMTP Username</label>
+        <input class="input" type="text" formControlName="smtp_user" placeholder="your-email@example.com" />
       </div>
       <div class="form-field">
-        <label>Product image</label>
-        <input class="input" type="file" (change)="uploadImage($event)" />
-        <img *ngIf="product()?.image_url" [src]="product()?.image_url" alt="Product preview" />
+        <label>SMTP Password</label>
+        <input class="input" type="password" formControlName="smtp_pass" />
+        <small class="helper">Leave blank to keep current password.</small>
       </div>
-      <button class="btn btn-primary" type="submit" [disabled]="saving()">Save product settings</button>
+      <div class="form-field">
+        <label>SMTP Port</label>
+        <input class="input" type="number" formControlName="smtp_port" min="1" max="65535" />
+        <small class="helper">Default: 465 (TLS), 587 (STARTTLS), or 25 (unencrypted)</small>
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving() || smtpForm.invalid">Save SMTP settings</button>
     </form>
   </section>
+
+  <section class="card">
+    <h3>Website Branding</h3>
+    <form class="form-grid" [formGroup]="brandingForm" (ngSubmit)="saveBrandingSettings()">
+      <div class="form-field">
+        <label>Website Name</label>
+        <input class="input" type="text" formControlName="website_name" placeholder="One Product Store" />
+        <small class="helper">This will be displayed in the header and browser title</small>
+      </div>
+      
+      <div class="form-field">
+        <label>Logo</label>
+        <div class="file-upload-section">
+          <div *ngIf="logoPreview()" class="image-preview-container">
+            <img [src]="logoPreview()" alt="Logo preview" class="preview-image" />
+            <button type="button" class="btn btn-small btn-danger" (click)="removeLogo()">Remove</button>
+          </div>
+          <input
+            type="file"
+            #logoInput
+            accept="image/*"
+            (change)="onLogoSelected($event)"
+            style="display: none"
+          />
+          <button type="button" class="btn btn-outline" (click)="logoInput.click()" [disabled]="saving()">
+            {{ logoPreview() ? 'Change Logo' : 'Upload Logo' }}
+          </button>
+        </div>
+        <small class="helper">Upload your website logo image (displayed in header)</small>
+      </div>
+      
+      <div class="form-field">
+        <label>Favicon</label>
+        <div class="file-upload-section">
+          <div *ngIf="faviconPreview()" class="image-preview-container">
+            <img [src]="faviconPreview()" alt="Favicon preview" class="preview-image favicon-preview" />
+            <button type="button" class="btn btn-small btn-danger" (click)="removeFavicon()">Remove</button>
+          </div>
+          <input
+            type="file"
+            #faviconInput
+            accept="image/*,.ico"
+            (change)="onFaviconSelected($event)"
+            style="display: none"
+          />
+          <button type="button" class="btn btn-outline" (click)="faviconInput.click()" [disabled]="saving()">
+            {{ faviconPreview() ? 'Change Favicon' : 'Upload Favicon' }}
+          </button>
+        </div>
+        <small class="helper">Upload your website favicon (displayed in browser tab)</small>
+      </div>
+      
+      <button class="btn btn-primary" type="submit" [disabled]="saving() || brandingForm.invalid">Save branding settings</button>
+    </form>
+  </section>
+
 
   <section class="card">
     <h3>Email Templates</h3>

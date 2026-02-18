@@ -1,3 +1,5 @@
+<app-back-button label="Back to Products" fallbackRoute="/" />
+
 <section class="hero-grid">
   <div>
     <span class="badge">Limited Release</span>
@@ -27,8 +29,22 @@
       <app-skeleton height="28px" width="140px" />
     </ng-template>
 
+    <div class="quantity-section" *ngIf="!loading()">
+      <app-quantity-selector
+        [initialValue]="quantity()"
+        [min]="1"
+        [max]="999"
+        label="Quantity"
+        (quantityChange)="onQuantityChange($event)"
+      />
+      <div class="quantity-total" *ngIf="product()">
+        <span class="total-label">Total:</span>
+        <span class="total-amount">{{ (product()!.price * quantity()) | currency: currency() }}</span>
+      </div>
+    </div>
+
     <div class="actions">
-      <a class="btn btn-primary" routerLink="/checkout">Buy Now</a>
+      <button type="button" class="btn btn-primary" (click)="navigateToCheckout()">Buy Now</button>
       <button type="button" class="btn btn-ghost">View Specs</button>
     </div>
 

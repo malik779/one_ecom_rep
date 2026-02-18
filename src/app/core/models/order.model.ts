@@ -12,6 +12,8 @@ export interface Order {
   currency: string;
   transaction_id: string | null;
   created_at: string;
+  /** Set when order is soft-deleted; null means active. */
+  deleted_at?: string | null;
 }
 
 export interface OrderItem {

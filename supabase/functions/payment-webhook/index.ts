@@ -2,10 +2,9 @@ import Stripe from 'https://esm.sh/stripe@14.25.0?target=deno';
 import { corsHeaders } from '../_shared/cors.ts';
 import { supabaseAdmin } from '../_shared/supabase-client.ts';
 
-const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? '';
 
-const updateFromSession = async (session: Stripe.Checkout.Session) => {
+const updateFromSession = async (session: Stripe.Checkout.Session,settings: any) => {
   const orderId = session.client_reference_id ?? session.metadata?.order_id;
   if (!orderId) {
     return;
@@ -46,11 +45,7 @@ const updateFromSession = async (session: Stripe.Checkout.Session) => {
       return;
     }
 
-    const { data: settings } = await supabaseAdmin
-      .from('app_settings')
-      .select('admin_email')
-      .limit(1)
-      .maybeSingle();
+    
     const adminEmail = settings?.admin_email ?? Deno.env.get('ADMIN_NOTIFICATION_EMAIL');
 
     await supabaseAdmin.functions.invoke('send-email', {
@@ -83,18 +78,22 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
-
+  const { data: settings } = await supabaseAdmin
+  .from('app_settings')
+  .select('admin_email,payment_secret_key')
+  .limit(1)
+  .maybeSingle();
   try {
-    if (!stripeSecret) {
-      throw new Error('Missing Stripe secret key.');
+    if (!settings?.payment_secret_key) {
+      return new Response('Missing Stripe secret key.', { status: 400 });
     }
     if (!webhookSecret) {
-      throw new Error('Missing Stripe webhook secret.');
+      return new Response('Missing Stripe webhook secret.', { status: 400 });
     }
 
-    const stripe = new Stripe(stripeSecret, {
-      apiVersion: '2024-06-20',
-      httpClient: Stripe.createFetchHttpClient()
+    const stripe = new Stripe(settings.payment_secret_key, {
+      apiVersion: '2024-06-20'
+
     });
 
     const signature = req.headers.get('stripe-signature');
@@ -103,10 +102,10 @@ Deno.serve(async (req) => {
       return new Response('Missing signature', { status: 400 });
     }
 
-    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    const event =await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      await updateFromSession(session);
+      await updateFromSession(session,settings);
     }
 
     return new Response('ok', { status: 200 });

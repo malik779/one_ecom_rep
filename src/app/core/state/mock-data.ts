@@ -25,11 +25,18 @@ export const mockPublicSettings: PublicAppSettings = {
   currency: 'USD',
   success_url: 'http://localhost:4200/payment/success',
   cancel_url: 'http://localhost:4200/payment/failure',
-  product_id: mockProduct.id
+  product_id: mockProduct.id,
+  website_name: 'One Product Store',
+  logo_url: '/logo.svg',
+  favicon_url: '/favicon.ico'
 };
 
 export const mockAdminSettings: AdminAppSettings = {
   ...mockPublicSettings,
   sender_email: 'store@example.com',
-  admin_email: 'admin@example.com'
+  admin_email: 'admin@example.com',
+  smtp_host: 'smtp.gmail.com',
+  smtp_user: 'test@gmail.com',
+  smtp_pass: 'test',
+  smtp_port: 465
 };
